@@ -10,7 +10,8 @@ export default {
         },
         dark: {
           DEFAULT: '#141414',
-          hover: '#0A0A0A'
+          hover: '#0A0A0A',
+          light: '#444'
         },
         primary: {
           DEFAULT: '#007CBE',

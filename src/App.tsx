@@ -1,67 +1,33 @@
-import { useEffect, useState } from 'react'
+import { effect, signal } from '@preact/signals-react'
+import { useSignals } from '@preact/signals-react/runtime'
 import CompletedTodos from './components/CompletedTodos'
-import Todos from './components/Todos'
+import Todos, { Todo } from './components/Todos'
 import Logo from './components/ui/Logo'
-
-export type Todo = {
-  id: string
-  title: string
-  completed: boolean
-}
 
 const LOCAL_STORAGE_KEY = 'todos'
 
+export function getTodos() {
+  try {
+    const savedTodos = localStorage.getItem('todos')
+    return savedTodos ? JSON.parse(savedTodos) : []
+  } catch (error) {
+    return []
+  }
+}
+
+export const todos = signal<Todo[]>(getTodos())
+
+effect(() => {
+  localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos.value))
+})
+
 function App() {
-  console.log('App rendered')
-  const [todos, setTodos] = useState<Todo[]>(() => {
-    try {
-      const savedTodos = localStorage.getItem(LOCAL_STORAGE_KEY)
-      return savedTodos ? JSON.parse(savedTodos) : []
-    } catch (error) {
-      console.error('Error loading todos:', error)
-      return []
-    }
-  })
-
-  const incompleteTodos = todos.filter((todo: { completed: boolean }) => !todo.completed)
-  const completedTodos = todos.filter((todo: { completed: boolean }) => todo.completed)
-
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const formData = new FormData(event.target as HTMLFormElement)
-    const title = formData.get('title') as string
-
-    if (!title.trim()) return
-
-    const newTodo: Todo = {
-      id: crypto.randomUUID(),
-      title,
-      completed: false
-    }
-
-    setTodos([...todos, newTodo])
-    event.currentTarget.reset()
-  }
-
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = event.target
-    const id = event.target.value
-    setTodos(prevTodos =>
-      prevTodos.map(todo => (todo.id === id ? { ...todo, completed: checked } : todo))
-    )
-  }
-
-  const handleDelete = (id: string) => {
-    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
-  }
+  useSignals()
 
   const handleReset = () => {
-    setTodos([])
+    localStorage.removeItem(LOCAL_STORAGE_KEY)
+    todos.value = []
   }
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos))
-  }, [todos])
 
   return (
     <>
@@ -77,15 +43,10 @@ function App() {
 
       <main className='app pt-8 lg:grid lg:grid-cols-12 lg:gap-12'>
         <div className='w-full lg:col-span-8'>
-          <Todos
-            incompleteTodos={incompleteTodos}
-            handleSubmit={handleSubmit}
-            handleChange={handleChange}
-            handleDelete={handleDelete}
-          />
+          <Todos todos={todos} />
         </div>
         <div className='w-full lg:col-span-4'>
-          <CompletedTodos completedTodos={completedTodos} />
+          <CompletedTodos todos={todos} />
         </div>
       </main>
     </>

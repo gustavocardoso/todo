@@ -1,15 +1,53 @@
-import { Todo } from '../App'
+import { Signal, useComputed } from '@preact/signals-react'
 import Trash from './ui/Trash'
 
-type TodoProps = {
-  incompleteTodos: Todo[]
-  handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
-  handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void
-  handleDelete: (id: string) => void
+export type Todo = {
+  id: string
+  title: string
+  completed: boolean
 }
 
-const Todos = ({ incompleteTodos, handleSubmit, handleChange, handleDelete }: TodoProps) => {
-  console.log('Todos rendered')
+// type TodoProps = {
+//   handleSubmit: (event: React.FormEvent<HTMLFormElement>) => void
+//   handleChange: (event: React.ChangeEvent<HTMLInputElement>) => void
+//   handleDelete: (id: string) => void
+// }
+
+const Todos = ({ todos }: { todos: Signal<Todo[]> }) => {
+  const incompleteTodos = useComputed(() => todos.value.filter(todo => !todo.completed))
+
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const formData = new FormData(event.target as HTMLFormElement)
+    const title = formData.get('title') as string
+
+    if (!title.trim()) return
+
+    const newTodo: Todo = {
+      id: crypto.randomUUID(),
+      title,
+      completed: false
+    }
+
+    todos.value = [...todos.value, newTodo]
+    event.currentTarget.reset()
+  }
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { checked } = event.target
+    const id = event.target.value
+    // wait 500 milliseconds before updating the todos
+    setTimeout(() => {
+      todos.value = todos.value.map(todo =>
+        todo.id === id ? { ...todo, completed: checked } : todo
+      )
+    }, 300)
+  }
+
+  const handleDelete = (id: string) => {
+    todos.value = todos.value.filter(todo => todo.id !== id)
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit} className='flex gap-2 bg-light-hover p-4 rounded-lg mb-8'>
@@ -38,11 +76,10 @@ const Todos = ({ incompleteTodos, handleSubmit, handleChange, handleDelete }: To
           Add
         </button>
       </form>
-
-      {incompleteTodos.length > 0 && (
+      {incompleteTodos.value.length > 0 && (
         <div className='todos-container mb-12 lg:mb-0'>
           <ul className='mt-8 flex flex-col gap-4'>
-            {incompleteTodos.map(todo => (
+            {incompleteTodos.value.map(todo => (
               <li
                 key={todo.id}
                 className='bg-white hover:bg-highlight transition-colors shadow py-4 px-6 rounded-lg group'
@@ -54,7 +91,6 @@ const Todos = ({ incompleteTodos, handleSubmit, handleChange, handleDelete }: To
                       onChange={handleChange}
                       value={todo.id}
                       name='completed'
-                      checked={todo.completed}
                       className='w-5 h-5'
                     />
                     <span className='text-dark'>{todo.title}</span>
