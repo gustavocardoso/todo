@@ -1,12 +1,11 @@
 import { Todo } from '../App'
-import Check from './ui/Check'
+import Check from '../assets/icons/check.svg?react'
 
 type CompletedTodosProps = {
   completedTodos: Todo[]
 }
 
 const CompletedTodos = ({ completedTodos }: CompletedTodosProps) => {
-  console.log('CompletedTodos rendered')
   return (
     <>
       {completedTodos.length > 0 && (
@@ -18,7 +17,10 @@ const CompletedTodos = ({ completedTodos }: CompletedTodosProps) => {
                 key={todo.id}
                 className='p-4 line-through flex items-center gap-2 bg-light rounded'
               >
-                <Check /> {todo.title}
+                <div className='text-tertiary'>
+                  <Check />
+                </div>
+                {todo.title}
               </li>
             ))}
           </ul>

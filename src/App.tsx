@@ -12,7 +12,6 @@ export type Todo = {
 const LOCAL_STORAGE_KEY = 'todos'
 
 function App() {
-  console.log('App rendered')
   const [todos, setTodos] = useState<Todo[]>(() => {
     try {
       const savedTodos = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -46,6 +45,7 @@ function App() {
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { checked } = event.target
     const id = event.target.value
+
     setTodos(prevTodos =>
       prevTodos.map(todo => (todo.id === id ? { ...todo, completed: checked } : todo))
     )
