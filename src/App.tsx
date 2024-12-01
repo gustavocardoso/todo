@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router'
 import CompletedTodos from './components/CompletedTodos'
 import Todos from './components/Todos'
 import Logo from './components/ui/Logo'
@@ -22,6 +23,12 @@ function App() {
     }
   })
 
+  const [lastAddedId, setLastAddedId] = useState<string | null>(null)
+
+  let navigate = useNavigate()
+
+  const isLogged = false
+
   const incompleteTodos = todos.filter((todo: { completed: boolean }) => !todo.completed)
   const completedTodos = todos.filter((todo: { completed: boolean }) => todo.completed)
 
@@ -38,7 +45,10 @@ function App() {
       completed: false
     }
 
-    setTodos([...todos, newTodo])
+    console.log(newTodo.id)
+
+    setTodos([newTodo, ...todos])
+    setLastAddedId(newTodo.id)
     event.currentTarget.reset()
   }
 
@@ -63,13 +73,19 @@ function App() {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos))
   }, [todos])
 
+  // useEffect(() => {
+  //   if (!isLogged) {
+  //     navigate('/login')
+  //   }
+  // }, [isLogged])
+
   return (
     <>
-      <header className='flex justify-between items-center border-b border-dark/20 dark:border-light/20 pb-4 text-primary'>
+      <header className='flex justify-between items-center border-b border-dark/20 dark:border-light/20 pb-4'>
         <Logo />
         <button
           onClick={handleReset}
-          className='bg-secondary hover:bg-secondary-hover text-light transition-colors font-medium rounded py-2 px-6 border-0 flex items-center gap-2 hover:text-white'
+          className='bg-dark hover:bg-dark-hover text-light transition-colors font-medium rounded py-2 px-6 border-0 flex items-center gap-2 hover:text-white'
         >
           Reset List
         </button>
@@ -82,6 +98,7 @@ function App() {
             handleSubmit={handleSubmit}
             handleChange={handleChange}
             handleDelete={handleDelete}
+            lastAddedId={lastAddedId}
           />
         </div>
         <div className='w-full lg:col-span-4'>

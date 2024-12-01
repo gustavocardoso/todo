@@ -3,30 +3,39 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+        special: "'Roboto Slab', serif",
+        base: "'Roboto', sans-serif"
+      },
       colors: {
         light: {
-          DEFAULT: '#EEF0F2',
-          hover: '#DCE0E4'
+          DEFAULT: '#f9f8f7',
+          hover: '#EDEBE8'
         },
         dark: {
-          DEFAULT: '#141414',
-          hover: '#0A0A0A'
+          DEFAULT: '#32302f',
+          hover: '#535150'
         },
         primary: {
-          DEFAULT: '#007CBE',
-          hover: '#005D8F'
+          DEFAULT: '#26638e',
+          hover: '#2F7BB1',
+          light: '#edf3fa'
         },
         secondary: {
-          DEFAULT: '#E94F37',
-          hover: '#CA2E16'
+          DEFAULT: '#d4605c',
+          hover: '#C13833'
         },
         tertiary: {
-          DEFAULT: '#23CE6B',
-          hover: '#1EAE5A'
+          DEFAULT: '#377674',
+          hover: '#489996'
         },
         highlight: {
           DEFAULT: '#FAF33E',
           hover: '#F9F224'
+        },
+        success: {
+          DEFAULT: '#408446',
+          hover: '#50A557'
         }
       }
     }

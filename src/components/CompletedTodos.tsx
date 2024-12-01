@@ -15,7 +15,7 @@ const CompletedTodos = ({ completedTodos }: CompletedTodosProps) => {
             {completedTodos.map(todo => (
               <li
                 key={todo.id}
-                className='p-4 line-through flex items-center gap-2 bg-light rounded'
+                className='p-4 text-dark-hover decoration-dark line-through flex items-center gap-2 bg-light rounded'
               >
                 <div className='text-tertiary'>
                   <Check />

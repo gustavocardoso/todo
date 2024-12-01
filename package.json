@@ -1,5 +1,5 @@
 {
-  "name": "todo",
+  "name": "todo-app",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,12 +12,16 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "vite-plugin-svgr": "^4.3.0"
+    "react-router": "^7.0.1",
+    "validator": "^13.12.0",
+    "vite-plugin-svgr": "^4.3.0",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
+    "@types/validator": "^13.12.2",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.13.0",
