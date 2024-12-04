@@ -19,11 +19,6 @@ function App() {
   const { isAuthenticated, loading: authLoading } = useAuth()
 
   useEffect(() => {
-    // Log the authentication state and loading status
-    console.log('Loading:', authLoading)
-    console.log('Is Authenticated:', isAuthenticated)
-
-    // Only navigate if loading is complete
     if (!authLoading) {
       if (!isAuthenticated) {
         navigate('/login')
@@ -48,6 +43,7 @@ function App() {
 
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
     const formData = new FormData(event.target as HTMLFormElement)
     const title = formData.get('title') as string
 
@@ -61,6 +57,7 @@ function App() {
 
     setTodos([newTodo, ...todos])
     setLastAddedId(newTodo.id)
+
     toast.success('New task created!')
     event.currentTarget.reset()
   }
