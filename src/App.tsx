@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
+import { Toaster, toast } from 'sonner'
 import CompletedTodos from './components/CompletedTodos'
 import Todos from './components/Todos'
 import Logo from './components/ui/Logo'
+import useAuth from './hooks/auth'
 
 export type Todo = {
   id: string
@@ -13,6 +15,22 @@ export type Todo = {
 const LOCAL_STORAGE_KEY = 'todos'
 
 function App() {
+  const navigate = useNavigate()
+  const { isAuthenticated, loading: authLoading } = useAuth()
+
+  useEffect(() => {
+    // Log the authentication state and loading status
+    console.log('Loading:', authLoading)
+    console.log('Is Authenticated:', isAuthenticated)
+
+    // Only navigate if loading is complete
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        navigate('/login')
+      }
+    }
+  }, [isAuthenticated, authLoading, navigate])
+
   const [todos, setTodos] = useState<Todo[]>(() => {
     try {
       const savedTodos = localStorage.getItem(LOCAL_STORAGE_KEY)
@@ -24,10 +42,6 @@ function App() {
   })
 
   const [lastAddedId, setLastAddedId] = useState<string | null>(null)
-
-  let navigate = useNavigate()
-
-  const isLogged = false
 
   const incompleteTodos = todos.filter((todo: { completed: boolean }) => !todo.completed)
   const completedTodos = todos.filter((todo: { completed: boolean }) => todo.completed)
@@ -45,10 +59,9 @@ function App() {
       completed: false
     }
 
-    console.log(newTodo.id)
-
     setTodos([newTodo, ...todos])
     setLastAddedId(newTodo.id)
+    toast.success('New task created!')
     event.currentTarget.reset()
   }
 
@@ -63,23 +76,30 @@ function App() {
 
   const handleDelete = (id: string) => {
     setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
+    toast.success('Task has been deleted!')
   }
 
   const handleReset = () => {
+    if (!todos.length) return
     setTodos([])
+    toast.info('Task list has been reset!')
   }
 
   useEffect(() => {
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos))
   }, [todos])
 
-  // useEffect(() => {
-  //   if (!isLogged) {
-  //     navigate('/login')
-  //   }
-  // }, [isLogged])
+  if (authLoading)
+    return (
+      <>
+        <div className='loader-container flex items-center gap-4'>
+          <div className='loader-spinner border-8 w-8 h-8 rounded-full border-secondary border-r-transparent animate-spin'></div>
+          <p className='font-medium animate-pulse'>Checking authentication...</p>
+        </div>
+      </>
+    )
 
-  return (
+  return isAuthenticated ? (
     <>
       <header className='flex justify-between items-center border-b border-dark/20 dark:border-light/20 pb-4'>
         <Logo />
@@ -104,9 +124,11 @@ function App() {
         <div className='w-full lg:col-span-4'>
           <CompletedTodos completedTodos={completedTodos} />
         </div>
+
+        <Toaster expand richColors />
       </main>
     </>
-  )
+  ) : null
 }
 
 export default App

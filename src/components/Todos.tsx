@@ -17,7 +17,6 @@ const Todos = ({
   handleDelete,
   lastAddedId = null
 }: TodoProps) => {
-  console.log(lastAddedId)
   return (
     <>
       <form

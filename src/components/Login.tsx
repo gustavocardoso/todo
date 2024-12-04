@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { redirect, useNavigate } from 'react-router'
+import { useNavigate } from 'react-router'
 import validator from 'validator'
 import { z } from 'zod'
 import Logo from '../components/ui/Logo'
@@ -28,6 +28,8 @@ interface LoginInput {
   password: string
 }
 
+const apiUrl = import.meta.env.VITE_API_URL
+
 function Login() {
   const navigate = useNavigate()
   const [email, setEmail] = useState<string>('')
@@ -51,7 +53,7 @@ function Login() {
       return
     }
 
-    const response = await fetch('http://localhost:3000/api/users/login', {
+    const response = await fetch(`${apiUrl}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -68,7 +70,7 @@ function Login() {
     }
 
     if (loginData.accessToken) {
-      console.log('redir')
+      console.log(loginData)
       navigate('/')
     }
   }

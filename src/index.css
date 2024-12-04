@@ -26,6 +26,15 @@ form:focus-within button {
   @apply bg-primary hover:bg-primary-hover;
 }
 
+form input:-internal-autofill-selected {
+  @apply !bg-white;
+}
+
+input:is(:-webkit-autofill, :autofill) {
+  box-shadow: inset 0 0 0 100px white;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
 .newest-task {
   animation: highlightTask 1.5s ease-in-out;
 }

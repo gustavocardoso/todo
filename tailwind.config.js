@@ -35,7 +35,8 @@ export default {
         },
         success: {
           DEFAULT: '#408446',
-          hover: '#50A557'
+          hover: '#50A557',
+          light: '#ACD7B0'
         }
       }
     }
