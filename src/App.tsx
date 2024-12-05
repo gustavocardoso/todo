@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { Toaster, toast } from 'sonner'
+import { completeTodo, createTodo, deleteCompletedTodos, deleteTodo, getTodos } from './api'
 import CompletedTodos from './components/CompletedTodos'
 import Todos from './components/Todos'
 import Logo from './components/ui/Logo'
@@ -12,7 +13,9 @@ export type Todo = {
   completed: boolean
 }
 
-const LOCAL_STORAGE_KEY = 'todos'
+interface NewTodo {
+  id: string
+}
 
 function App() {
   const navigate = useNavigate()
@@ -26,22 +29,28 @@ function App() {
     }
   }, [isAuthenticated, authLoading, navigate])
 
-  const [todos, setTodos] = useState<Todo[]>(() => {
+  const [todos, setTodos] = useState<Todo[]>([])
+
+  async function getAllTodos() {
     try {
-      const savedTodos = localStorage.getItem(LOCAL_STORAGE_KEY)
-      return savedTodos ? JSON.parse(savedTodos) : []
+      const savedTodos: Todo[] = await getTodos({})
+      setTodos(savedTodos)
     } catch (error) {
       console.error('Error loading todos:', error)
       return []
     }
-  })
+  }
+
+  useEffect(() => {
+    getAllTodos()
+  }, [])
 
   const [lastAddedId, setLastAddedId] = useState<string | null>(null)
 
-  const incompleteTodos = todos.filter((todo: { completed: boolean }) => !todo.completed)
-  const completedTodos = todos.filter((todo: { completed: boolean }) => todo.completed)
+  const incompleteTodos = todos.filter((todo: Todo) => !todo.completed)
+  const completedTodos = todos.filter((todo: Todo) => todo.completed)
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     const formData = new FormData(event.target as HTMLFormElement)
@@ -49,42 +58,35 @@ function App() {
 
     if (!title.trim()) return
 
-    const newTodo: Todo = {
-      id: crypto.randomUUID(),
-      title,
-      completed: false
-    }
+    const newTodo: NewTodo = await createTodo({ title })
 
-    setTodos([newTodo, ...todos])
-    setLastAddedId(newTodo.id)
-
+    setLastAddedId(newTodo.id ?? null)
     toast.success('New task created!')
-    event.currentTarget.reset()
+    ;(event.target as HTMLFormElement).reset()
+    await getAllTodos()
   }
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { checked } = event.target
+  const handleChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const id = event.target.value
 
-    setTodos(prevTodos =>
-      prevTodos.map(todo => (todo.id === id ? { ...todo, completed: checked } : todo))
-    )
+    setTimeout(async () => {
+      await completeTodo({ id })
+      toast.success('Task has been completed!')
+      await getAllTodos()
+    }, 200)
   }
 
-  const handleDelete = (id: string) => {
-    setTodos(prevTodos => prevTodos.filter(todo => todo.id !== id))
+  const handleDelete = async (id: string) => {
+    await deleteTodo({ id })
     toast.success('Task has been deleted!')
+    await getAllTodos()
   }
 
-  const handleReset = () => {
-    if (!todos.length) return
-    setTodos([])
-    toast.info('Task list has been reset!')
+  const handleDeleteCompletedTodos = async () => {
+    await deleteCompletedTodos()
+    toast.info('Completed task list has been emptied!')
+    await getAllTodos()
   }
-
-  useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(todos))
-  }, [todos])
 
   if (authLoading)
     return (
@@ -100,12 +102,6 @@ function App() {
     <>
       <header className='flex justify-between items-center border-b border-dark/20 dark:border-light/20 pb-4'>
         <Logo />
-        <button
-          onClick={handleReset}
-          className='bg-dark hover:bg-dark-hover text-light transition-colors font-medium rounded py-2 px-6 border-0 flex items-center gap-2 hover:text-white'
-        >
-          Reset List
-        </button>
       </header>
 
       <main className='app pt-8 lg:grid lg:grid-cols-12 lg:gap-12'>
@@ -119,7 +115,10 @@ function App() {
           />
         </div>
         <div className='w-full lg:col-span-4'>
-          <CompletedTodos completedTodos={completedTodos} />
+          <CompletedTodos
+            completedTodos={completedTodos}
+            handleDelete={handleDeleteCompletedTodos}
+          />
         </div>
 
         <Toaster expand richColors />

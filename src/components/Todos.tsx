@@ -57,7 +57,6 @@ const Todos = ({
                       onChange={handleChange}
                       value={todo.id}
                       name='completed'
-                      checked={todo.completed}
                       className='w-5 h-5'
                     />
                     <span className='text-dark'>{todo.title}</span>

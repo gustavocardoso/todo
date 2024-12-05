@@ -13,11 +13,11 @@ const useAuth = () => {
 
   useEffect(() => {
     const validateToken = async () => {
-      await new Promise(resolve => {
-        setTimeout(() => {
-          resolve('Promise resolved')
-        }, 4000)
-      })
+      // await new Promise(resolve => {
+      //   setTimeout(() => {
+      //     resolve('Promise resolved')
+      //   }, 1000)
+      // })
 
       try {
         const response = await fetch(`${apiUrl}/api/auth/validate-token`, {
